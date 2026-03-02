@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+/*
+ * Tailwind CSS v4 — Importación directa.
+ * Los tokens de diseño (colores, fuentes, etc.) se definen
+ * en el siguiente prompt con @theme.
+ * Por ahora solo la importación base para que compile.
+ */
