@@ -1,97 +1,59 @@
-import {
-    index,
-    integer,
-    jsonb,
-    pgTable,
-    timestamp,
-    uuid,
-    varchar
-} from 'drizzle-orm/pg-core';
-import {
-    subscriptionPlanEnum,
-    subscriptionStatusEnum,
-} from './enums';
+/**
+ * Tabla: subscriptions
+ *
+ * Suscripción de la barbería al SaaS.
+ * Relación 1:1 con shops (shopId unique).
+ *
+ * Integración con MercadoPago:
+ * - mpSubscriptionId: ID de la suscripción en MP
+ * - mpPayerId: ID del pagador en MP
+ *
+ * Ciclo de vida:
+ * trialing → active → (past_due ↔ active) → cancelled
+ *
+ * trialEndsAt: fecha en que termina el trial gratuito.
+ * Si pasa esta fecha sin pagar, status → past_due → cancelled.
+ */
+import { sql } from 'drizzle-orm';
+import { pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { subscriptionPlanEnum, subscriptionStatusEnum } from './enums';
 import { shops } from './shops';
 
-/**
- * Tabla subscriptions — suscripciones de MercadoPago.
- * Cada shop tiene máximo 1 suscripción activa (1:1).
- */
 export const subscriptions = pgTable('subscriptions', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: uuid('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+
+  /** Barbería suscrita — relación 1:1 */
   shopId: uuid('shop_id')
-    .notNull()
+    .references(() => shops.id, { onDelete: 'cascade' })
     .unique()
-    .references(() => shops.id, { onDelete: 'cascade' }),
-  plan: subscriptionPlanEnum('plan').notNull().default('free'),
-  status: subscriptionStatusEnum('status').notNull().default('trial'),
-  // Precio en centavos del plan actual
-  amountCents: integer('amount_cents').notNull().default(0),
-  // ID de la suscripción en MercadoPago
+    .notNull(),
+
+  plan: subscriptionPlanEnum('plan').default('free').notNull(),
+  status: subscriptionStatusEnum('status').default('trialing').notNull(),
+
+  // ── Integración MercadoPago ──
+  /** ID de la suscripción en MercadoPago */
   mpSubscriptionId: varchar('mp_subscription_id', { length: 255 }),
-  // Periodo actual
+
+  /** ID del pagador en MercadoPago */
+  mpPayerId: varchar('mp_payer_id', { length: 255 }),
+
+  // ── Período de facturación ──
+  currentPeriodStart: timestamp('current_period_start', { withTimezone: true }),
+  currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }),
+
+  /** Fin del período de prueba */
   trialEndsAt: timestamp('trial_ends_at', { withTimezone: true }),
-  periodStart: timestamp('period_start', { withTimezone: true }),
-  periodEnd: timestamp('period_end', { withTimezone: true }),
+
+  /** Fecha de cancelación (null si no está cancelada) */
   cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
+
   createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+    .default(sql`now()`)
+    .notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
+    .default(sql`now()`)
+    .notNull(),
 });
-
-/**
- * Tabla subscription_events — auditoría de suscripciones.
- * Cada cambio de estado inserta un registro.
- */
-export const subscriptionEvents = pgTable(
-  'subscription_events',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    subscriptionId: uuid('subscription_id')
-      .notNull()
-      .references(() => subscriptions.id, { onDelete: 'cascade' }),
-    eventType: varchar('event_type', { length: 50 }).notNull(),
-    fromStatus: varchar('from_status', { length: 20 }),
-    toStatus: varchar('to_status', { length: 20 }).notNull(),
-    metadata: jsonb('metadata'),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => [
-    index('sub_events_sub_created_idx').on(
-      table.subscriptionId,
-      table.createdAt,
-    ),
-  ],
-);
-
-/**
- * Tabla analytics_events — tracking de comportamiento.
- * Se implementa la tabla ahora pero el tracking en fase posterior.
- */
-export const analyticsEvents = pgTable(
-  'analytics_events',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    shopId: uuid('shop_id')
-      .notNull()
-      .references(() => shops.id, { onDelete: 'cascade' }),
-    eventName: varchar('event_name', { length: 50 }).notNull(),
-    metadata: jsonb('metadata'),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => [
-    index('analytics_shop_event_created_idx').on(
-      table.shopId,
-      table.eventName,
-      table.createdAt,
-    ),
-  ],
-);

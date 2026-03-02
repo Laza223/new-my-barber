@@ -1,43 +1,84 @@
+/**
+ * Tabla: shops
+ *
+ * La barbería es la entidad central del negocio.
+ * Cada owner tiene exactamente una barbería (ownerId unique).
+ *
+ * Configuraciones de la barbería:
+ * - monthlyGoal: meta de facturación mensual en centavos
+ * - dailySalesLimit: depende del plan de suscripción
+ * - summaryHour: hora a la que se envía el resumen diario (0-23)
+ * - whatsapp/email summary: canales de notificación
+ */
+import { sql } from 'drizzle-orm';
 import {
-    boolean,
-    integer,
-    pgTable,
-    timestamp,
-    uuid,
-    varchar,
+  boolean,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  varchar,
 } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
-/**
- * Tabla shops — la barbería/negocio.
- * Cada user tiene exactamente 1 shop (1:1).
- *
- * "shop" se usa en código en vez de "barber" para evitar
- * confusión entre la persona y el negocio.
- */
 export const shops = pgTable('shops', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id')
-    .notNull()
+  id: uuid('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+
+  /** Dueño de la barbería — relación 1:1 */
+  ownerId: uuid('owner_id')
+    .references(() => users.id, { onDelete: 'cascade' })
     .unique()
-    .references(() => users.id, { onDelete: 'cascade' }),
+    .notNull(),
+
   name: varchar('name', { length: 100 }).notNull(),
-  fantasyName: varchar('fantasy_name', { length: 100 }),
+
+  /** URL-friendly identifier: "barberking" */
+  slug: varchar('slug', { length: 120 }).unique().notNull(),
+
+  address: varchar('address', { length: 255 }),
   phone: varchar('phone', { length: 20 }),
-  // Días laborales: array de 0-6 (domingo a sábado)
-  workingDays: integer('working_days').array(),
-  // Onboarding
-  onboardingCompleted: boolean('onboarding_completed')
-    .notNull()
-    .default(false),
-  onboardingStep: integer('onboarding_step').notNull().default(1),
-  // Meta mensual en centavos (nullable = sin meta)
-  monthlyGoalCents: integer('monthly_goal_cents'),
+  logoUrl: text('logo_url'),
+
+  /** Meta de facturación mensual en CENTAVOS */
+  monthlyGoal: integer('monthly_goal'),
+
+  timezone: varchar('timezone', { length: 50 })
+    .default('America/Argentina/Buenos_Aires')
+    .notNull(),
+  currency: varchar('currency', { length: 3 }).default('ARS').notNull(),
+
+  /**
+   * Límite de ventas diarias según plan:
+   * - free: 15/día
+   * - individual: ilimitado (se setea en 9999)
+   * - business: ilimitado (se setea en 9999)
+   */
+  dailySalesLimit: integer('daily_sales_limit').default(15).notNull(),
+
+  /** Número de WhatsApp para resúmenes (con código país) */
+  whatsappNumber: varchar('whatsapp_number', { length: 20 }),
+
+  /** Canales de notificación del resumen diario */
+  emailSummaryEnabled: boolean('email_summary_enabled')
+    .default(false)
+    .notNull(),
+  whatsappSummaryEnabled: boolean('whatsapp_summary_enabled')
+    .default(false)
+    .notNull(),
+
+  /** Hora del resumen diario (0-23, default 22:00) */
+  summaryHour: integer('summary_hour').default(22).notNull(),
+
+  isActive: boolean('is_active').default(true).notNull(),
+
   createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+    .default(sql`now()`)
+    .notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
+    .default(sql`now()`)
+    .notNull(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });

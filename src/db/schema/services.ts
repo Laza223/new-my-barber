@@ -1,43 +1,82 @@
+/**
+ * Tabla: services
+ *
+ * Los servicios que ofrece una barbería.
+ * price está en CENTAVOS (integer).
+ * sortOrder permite al dueño ordenar los servicios en la UI.
+ *
+ * Unique constraint parcial: no puede haber dos servicios activos
+ * con el mismo nombre en la misma barbería.
+ * (Dos servicios borrados con el mismo nombre sí pueden existir.)
+ *
+ * Soft delete: deletedAt no null = servicio eliminado.
+ * Se mantiene para que las ventas históricas mantengan referencia.
+ */
 import { sql } from 'drizzle-orm';
 import {
-    boolean,
-    check,
-    integer,
-    pgTable,
-    timestamp,
-    uuid,
-    varchar,
+  boolean,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+  varchar,
 } from 'drizzle-orm/pg-core';
 import { shops } from './shops';
 
-/**
- * Tabla services — servicios que ofrece la barbería.
- * Max 50 activos por shop (Free: max 3).
- * Soft delete para mantener referencias en ventas históricas.
- * Precios en centavos (integer).
- */
 export const services = pgTable(
   'services',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+
     shopId: uuid('shop_id')
-      .notNull()
-      .references(() => shops.id, { onDelete: 'cascade' }),
+      .references(() => shops.id, { onDelete: 'cascade' })
+      .notNull(),
+
     name: varchar('name', { length: 100 }).notNull(),
-    // Precio en centavos. Ej: $5.000 = 500_000
-    priceCents: integer('price_cents').notNull(),
-    isActive: boolean('is_active').notNull().default(true),
-    sortOrder: integer('sort_order').notNull().default(0),
-    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+    description: text('description'),
+
+    /** Precio del servicio en CENTAVOS. $8.000 = 800000 */
+    price: integer('price').notNull(),
+
+    /** Duración estimada en minutos (nullable porque no siempre se define) */
+    duration: integer('duration'),
+
+    isActive: boolean('is_active').default(true).notNull(),
+
+    /** Orden de aparición en la UI (ascendente) */
+    sortOrder: integer('sort_order').default(0).notNull(),
+
     createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+      .default(sql`now()`)
+      .notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
+      .default(sql`now()`)
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
   },
   (table) => [
-    check('price_positive', sql`${table.priceCents} > 0`),
+    /** Servicios activos de una barbería, ordenados */
+    index('idx_services_shop_active_sort').on(
+      table.shopId,
+      table.isActive,
+      table.sortOrder,
+    ),
+    /**
+     * No duplicar nombres activos en la misma barbería.
+     * Solo aplica cuando deletedAt IS NULL (partial unique).
+     * Drizzle no soporta WHERE en uniqueIndex, así que esto se
+     * aplica como constraint regular — si se necesita el parcial,
+     * hacerlo en una migración custom.
+     */
+    uniqueIndex('idx_services_shop_name_unique').on(
+      table.shopId,
+      table.name,
+      table.deletedAt,
+    ),
   ],
 );
