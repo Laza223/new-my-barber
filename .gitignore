@@ -1,0 +1,56 @@
+# ── Dependencies ──
+node_modules/
+.pnpm-store/
+
+# ── Next.js ──
+.next/
+out/
+
+# ── Build ──
+dist/
+build/
+*.tsbuildinfo
+
+# ── Environment ──
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ── IDE ──
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ──
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Testing ──
+coverage/
+*.lcov
+
+# ── Drizzle ──
+drizzle/meta/
+
+# ── Sentry ──
+.sentryclirc
+
+# ── Misc ──
+*.pem
+*.key
+*.cert
+
+# ── Vercel ──
+.vercel
