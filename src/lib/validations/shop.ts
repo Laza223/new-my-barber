@@ -1,63 +1,56 @@
+/**
+ * Validaciones Zod para barbería.
+ * Mensajes de error en español.
+ */
 import { z } from 'zod';
 
-/**
- * Validaciones de la barbería (shop).
- */
+/** Regex para teléfono argentino: +54 o sin prefijo, 10-13 dígitos */
+const phoneRegex = /^(\+54)?\d{10,13}$/;
 
-export const updateShopSchema = z.object({
-  fantasyName: z
-    .string()
+export const createShopSchema = z.object({
+  name: z
+    .string({ required_error: 'El nombre es requerido' })
     .min(2, 'El nombre debe tener al menos 2 caracteres')
-    .max(100, 'El nombre es muy largo')
-    .trim()
+    .max(100, 'El nombre no puede superar 100 caracteres')
+    .trim(),
+  address: z
+    .string()
+    .max(255, 'La dirección no puede superar 255 caracteres')
     .optional(),
   phone: z
     .string()
-    .min(8, 'Teléfono inválido')
-    .max(20, 'Teléfono muy largo')
-    .optional()
-    .nullable(),
-  workingDays: z
-    .array(z.number().int().min(0).max(6))
-    .min(1, 'Seleccioná al menos un día')
-    .transform((days) => [...new Set(days)].sort())
+    .regex(
+      phoneRegex,
+      'El teléfono no tiene un formato válido (ej: +5491155001234)',
+    )
     .optional(),
-  monthlyGoalCents: z
+});
+
+export const updateShopSchema = createShopSchema.partial();
+
+export const updateShopSettingsSchema = z.object({
+  /** Meta mensual en CENTAVOS (integer). 0 = sin meta. */
+  monthlyGoal: z
     .number()
-    .int()
-    .positive('La meta debe ser mayor a $0')
+    .int('La meta debe ser un número entero (centavos)')
+    .min(0, 'La meta no puede ser negativa')
+    .optional(),
+  whatsappNumber: z
+    .string()
+    .regex(phoneRegex, 'El número de WhatsApp no tiene un formato válido')
     .optional()
     .nullable(),
-});
-
-/**
- * Schema para cada paso del onboarding.
- */
-export const onboardingStep1Schema = z.object({
-  fantasyName: z
-    .string()
-    .min(2, 'El nombre debe tener al menos 2 caracteres')
-    .max(100)
-    .trim(),
-  phone: z.string().max(20).optional(),
-});
-
-export const onboardingStep2Schema = z.object({
-  workingDays: z
-    .array(z.number().int().min(0).max(6))
-    .min(1, 'Seleccioná al menos un día laboral')
-    .transform((days) => [...new Set(days)].sort()),
-});
-
-export const onboardingStep4Schema = z.object({
-  monthlyGoalCents: z
+  emailSummaryEnabled: z.boolean().optional(),
+  whatsappSummaryEnabled: z.boolean().optional(),
+  /** Hora del resumen diario (0-23) */
+  summaryHour: z
     .number()
     .int()
-    .positive('La meta debe ser mayor a $0')
-    .nullable(),
+    .min(0, 'La hora debe ser entre 0 y 23')
+    .max(23, 'La hora debe ser entre 0 y 23')
+    .optional(),
 });
 
-export type UpdateShopInput = z.infer<typeof updateShopSchema>;
-export type OnboardingStep1Input = z.infer<typeof onboardingStep1Schema>;
-export type OnboardingStep2Input = z.infer<typeof onboardingStep2Schema>;
-export type OnboardingStep4Input = z.infer<typeof onboardingStep4Schema>;
+export type CreateShopSchema = z.infer<typeof createShopSchema>;
+export type UpdateShopSchema = z.infer<typeof updateShopSchema>;
+export type UpdateShopSettingsSchema = z.infer<typeof updateShopSettingsSchema>;

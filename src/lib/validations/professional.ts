@@ -1,28 +1,27 @@
-import { z } from 'zod';
-
 /**
- * Validaciones de profesionales.
+ * Validaciones Zod para profesionales.
+ * Mensajes de error en español.
  */
+import { z } from 'zod';
 
 export const createProfessionalSchema = z.object({
   name: z
-    .string()
+    .string({ required_error: 'El nombre es requerido' })
     .min(2, 'El nombre debe tener al menos 2 caracteres')
-    .max(100, 'El nombre es muy largo')
+    .max(100, 'El nombre no puede superar 100 caracteres')
     .trim(),
-  commissionPercentage: z
-    .number()
+  phone: z
+    .string()
+    .regex(/^(\+54)?\d{10,13}$/, 'El teléfono no tiene un formato válido')
+    .optional(),
+  commissionRate: z
+    .number({ required_error: 'La comisión es requerida' })
     .int('La comisión debe ser un número entero')
     .min(0, 'La comisión no puede ser negativa')
-    .max(100, 'La comisión no puede ser mayor a 100%'),
+    .max(100, 'La comisión no puede superar 100%'),
 });
 
-export const updateProfessionalSchema =
-  createProfessionalSchema.partial();
+export const updateProfessionalSchema = createProfessionalSchema.partial();
 
-export type CreateProfessionalInput = z.infer<
-  typeof createProfessionalSchema
->;
-export type UpdateProfessionalInput = z.infer<
-  typeof updateProfessionalSchema
->;
+export type CreateProfessionalSchema = z.infer<typeof createProfessionalSchema>;
+export type UpdateProfessionalSchema = z.infer<typeof updateProfessionalSchema>;
