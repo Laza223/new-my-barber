@@ -1,8 +1,202 @@
 @import 'tailwindcss';
 
 /*
- * Tailwind CSS v4 — Importación directa.
- * Los tokens de diseño (colores, fuentes, etc.) se definen
- * en el siguiente prompt con @theme.
- * Por ahora solo la importación base para que compile.
+ * My Barber — Design System
+ * Tailwind CSS v4 design tokens.
+ *
+ * Brand colors from logo:
+ * - Primary: Cyan/Turquoise (#00CED1 → #40E0D0)
+ * - Accent: Navy (#1E3A5F)
+ * - Highlight: Red (#E53935)
  */
+
+@theme {
+  /* ── Fonts ─────────────────────── */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+
+  /* ── Border radius ─────────────── */
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  /* ── Colors: Light mode ──────── */
+  --color-background: #f8fafb;
+  --color-foreground: #0f172a;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
+
+  --color-primary: #0891b2;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #e2e8f0;
+  --color-secondary-foreground: #1e293b;
+
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+
+  --color-accent: #e0f7fa;
+  --color-accent-foreground: #0e7490;
+
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #0891b2;
+
+  /* ── Chart palette ─────────────── */
+  --color-chart-1: #0891b2;
+  --color-chart-2: #06b6d4;
+  --color-chart-3: #22d3ee;
+  --color-chart-4: #67e8f9;
+  --color-chart-5: #a5f3fc;
+
+  /* ── Sidebar ────────────────────── */
+  --color-sidebar: #f8fafb;
+  --color-sidebar-foreground: #0f172a;
+  --color-sidebar-primary: #0891b2;
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: #e0f7fa;
+  --color-sidebar-accent-foreground: #0e7490;
+  --color-sidebar-border: #e2e8f0;
+  --color-sidebar-ring: #0891b2;
+}
+
+/* ── Dark mode ────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0c1222;
+    --color-foreground: #e2e8f0;
+
+    --color-card: #131c31;
+    --color-card-foreground: #e2e8f0;
+
+    --color-popover: #131c31;
+    --color-popover-foreground: #e2e8f0;
+
+    --color-primary: #22d3ee;
+    --color-primary-foreground: #0c1222;
+
+    --color-secondary: #1e293b;
+    --color-secondary-foreground: #cbd5e1;
+
+    --color-muted: #1e293b;
+    --color-muted-foreground: #94a3b8;
+
+    --color-accent: #164e63;
+    --color-accent-foreground: #67e8f9;
+
+    --color-destructive: #ef4444;
+    --color-destructive-foreground: #ffffff;
+
+    --color-border: #1e3044;
+    --color-input: #1e3044;
+    --color-ring: #22d3ee;
+
+    --color-chart-1: #22d3ee;
+    --color-chart-2: #06b6d4;
+    --color-chart-3: #0891b2;
+    --color-chart-4: #0e7490;
+    --color-chart-5: #155e75;
+
+    --color-sidebar: #0c1222;
+    --color-sidebar-foreground: #e2e8f0;
+    --color-sidebar-primary: #22d3ee;
+    --color-sidebar-primary-foreground: #0c1222;
+    --color-sidebar-accent: #164e63;
+    --color-sidebar-accent-foreground: #67e8f9;
+    --color-sidebar-border: #1e3044;
+    --color-sidebar-ring: #22d3ee;
+  }
+}
+
+.dark {
+  --color-background: #0c1222;
+  --color-foreground: #e2e8f0;
+
+  --color-card: #131c31;
+  --color-card-foreground: #e2e8f0;
+
+  --color-popover: #131c31;
+  --color-popover-foreground: #e2e8f0;
+
+  --color-primary: #22d3ee;
+  --color-primary-foreground: #0c1222;
+
+  --color-secondary: #1e293b;
+  --color-secondary-foreground: #cbd5e1;
+
+  --color-muted: #1e293b;
+  --color-muted-foreground: #94a3b8;
+
+  --color-accent: #164e63;
+  --color-accent-foreground: #67e8f9;
+
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+
+  --color-border: #1e3044;
+  --color-input: #1e3044;
+  --color-ring: #22d3ee;
+
+  --color-chart-1: #22d3ee;
+  --color-chart-2: #06b6d4;
+  --color-chart-3: #0891b2;
+  --color-chart-4: #0e7490;
+  --color-chart-5: #155e75;
+
+  --color-sidebar: #0c1222;
+  --color-sidebar-foreground: #e2e8f0;
+  --color-sidebar-primary: #22d3ee;
+  --color-sidebar-primary-foreground: #0c1222;
+  --color-sidebar-accent: #164e63;
+  --color-sidebar-accent-foreground: #67e8f9;
+  --color-sidebar-border: #1e3044;
+  --color-sidebar-ring: #22d3ee;
+}
+
+/* ── Base styles ────────────────── */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    color: var(--color-foreground);
+    background: var(--color-background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-muted-foreground);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-foreground);
+  }
+}
+
+/* ── Utilities ─────────────────── */
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+}

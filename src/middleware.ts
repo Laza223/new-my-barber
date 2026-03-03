@@ -48,9 +48,8 @@ export function middleware(request: NextRequest) {
   }
 
   // 2. Verificar existencia de session cookie
-  // Better-Auth usa "better-auth.session_token" por defecto
-  const sessionToken =
-    request.cookies.get('better-auth.session_token')?.value;
+  // Better-Auth usa cookiePrefix: 'mybarber' en auth.ts
+  const sessionToken = request.cookies.get('mybarber.session_token')?.value;
 
   if (!sessionToken) {
     const loginUrl = new URL('/login', request.url);
@@ -66,18 +65,12 @@ export function middleware(request: NextRequest) {
     'mybarber-onboarding-completed',
   )?.value;
 
-  if (
-    onboardingCompleted === 'false' &&
-    !pathname.startsWith('/onboarding')
-  ) {
+  if (onboardingCompleted === 'false' && !pathname.startsWith('/onboarding')) {
     return NextResponse.redirect(new URL('/onboarding', request.url));
   }
 
   // 4. Si está en onboarding pero ya completó → redirigir al dashboard
-  if (
-    onboardingCompleted === 'true' &&
-    pathname.startsWith('/onboarding')
-  ) {
+  if (onboardingCompleted === 'true' && pathname.startsWith('/onboarding')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

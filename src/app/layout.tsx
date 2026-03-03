@@ -58,7 +58,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={inter.variable} suppressHydrationWarning>
-      <body className="min-h-screen bg-background font-sans antialiased">
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <meta name="apple-mobile-web-app-title" content="My Barber" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+      </head>
+      <body className="bg-background min-h-screen font-sans antialiased">
         {children}
       </body>
     </html>

@@ -1,13 +1,13 @@
 /**
  * LoginForm — Formulario de inicio de sesión.
- * React Hook Form + Zod. Llama loginAction.
+ * Uses Better-Auth client-side signIn so cookies are properly set.
  */
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { loginSchema, type LoginSchema } from '@/lib/validations/auth';
-import { loginAction } from '@/server/actions/auth.actions';
+import { signIn } from '@/server/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Lock, LogIn, Mail } from 'lucide-react';
 import Link from 'next/link';
@@ -34,18 +34,19 @@ export function LoginForm() {
     setServerError(null);
 
     try {
-      const formData = new FormData();
-      formData.append('email', data.email);
-      formData.append('password', data.password);
+      // Use client-side signIn so the browser receives Set-Cookie headers
+      const result = await signIn.email({
+        email: data.email,
+        password: data.password,
+      });
 
-      const result = await loginAction(formData);
-
-      if (result.success) {
-        toast.success('¡Bienvenido!');
-        router.push(result.data.redirectTo);
-        router.refresh();
+      if (result.error) {
+        setServerError('Email o contraseña incorrectos');
       } else {
-        setServerError(result.error);
+        toast.success('¡Bienvenido!');
+        // Redirect to dashboard (middleware will handle onboarding check)
+        router.push('/dashboard');
+        router.refresh();
       }
     } catch {
       setServerError('Ocurrió un error inesperado');

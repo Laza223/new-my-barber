@@ -79,6 +79,7 @@ function createAuth() {
     /* ── Trusted origins ── */
     trustedOrigins: [
       process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+      'http://192.168.1.14:3000', // Red local para testing desde celular
     ],
   });
 }
