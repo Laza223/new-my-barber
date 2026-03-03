@@ -53,9 +53,10 @@ export class ValidationError extends AppError {
 }
 
 export class PlanLimitError extends AppError {
-  constructor(feature: string, planRequired: string) {
+  constructor(feature: string, planRequired: string, customMessage?: string) {
     super(
-      `Tu plan actual no incluye ${feature}. Actualizá a ${planRequired}.`,
+      customMessage ??
+        `Tu plan actual no incluye ${feature}. Actualizá a ${planRequired}.`,
       403,
       'PLAN_LIMIT_EXCEEDED',
     );
