@@ -1,17 +1,26 @@
+/**
+ * Dashboard Server Action.
+ */
 'use server';
 
-/**
- * Server Actions para el dashboard.
- * Datos agregados, reportes, exportaciones.
- */
+import type { ActionResponse } from '@/lib/types/common';
+import type { DashboardData } from '@/lib/types/dashboard';
+import { AppError } from '@/server/lib/errors';
+import { requireSession } from '@/server/lib/get-session';
+import { dashboardService } from '@/server/services/dashboard.service';
 
-// TODO: Implementar en fase de dashboard
-// - getDashboardData()
-// - getReportData(type: string, params: Record<string, string>)
-// - exportPDF(type: string, params: Record<string, string>)
-// - exportExcel(type: string, params: Record<string, string>)
-// - getProjections(month: string)
-
-export async function placeholder() {
-  return { success: false, error: 'Not implemented' };
+export async function getDashboardAction(
+  shopId: string,
+): Promise<ActionResponse<DashboardData>> {
+  try {
+    const session = await requireSession();
+    const data = await dashboardService.getDashboard(shopId, session.user.id);
+    return { success: true, data };
+  } catch (error) {
+    if (error instanceof AppError) {
+      return { success: false, error: error.message, code: error.code };
+    }
+    console.error('[DASHBOARD] error:', error);
+    return { success: false, error: 'Error al cargar el dashboard' };
+  }
 }

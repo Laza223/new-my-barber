@@ -1,34 +1,60 @@
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Dashboard',
-};
-
 /**
- * Layout principal de la app (protegido).
- * Incluye sidebar y header de navegación.
- * Solo accesible con sesión activa + onboarding completado.
+ * Dashboard Layout — sidebar + mobile nav + header + trial banner.
+ * Server component that fetches session data for layout.
  */
-export default function DashboardLayout({
+import { DashboardHeader } from '@/components/layout/dashboard-header';
+import { MobileNav } from '@/components/layout/mobile-nav';
+import { Sidebar } from '@/components/layout/sidebar';
+import { TrialBanner } from '@/components/subscription/trial-banner';
+import { requireOwner } from '@/server/lib/get-session';
+import { subscriptionRepository } from '@/server/repositories/subscription.repository';
+import { redirect } from 'next/navigation';
+
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  let session;
+  try {
+    session = await requireOwner();
+  } catch {
+    redirect('/login');
+  }
+
+  const subscription = await subscriptionRepository.findByShopId(
+    session.shop.id,
+  );
+  const planId = subscription?.plan ?? 'free';
+  const isTrial =
+    subscription?.status === 'trialing' &&
+    subscription?.trialEndsAt &&
+    subscription.trialEndsAt > new Date();
+
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar — se implementa en fase de UI */}
-      <aside className="hidden w-64 border-r md:block">
-        <div className="p-4">
-          <h2 className="text-lg font-bold">My Barber</h2>
-        </div>
-        {/* Navigation links — próxima fase */}
-      </aside>
+      {/* Desktop sidebar */}
+      <Sidebar shopName={session.shop.name} planId={planId} />
 
-      {/* Main content */}
-      <div className="flex flex-1 flex-col">
-        {/* Top header / mobile nav — próxima fase */}
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+      {/* Main area */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Trial banner */}
+        {isTrial && subscription?.trialEndsAt && (
+          <TrialBanner trialEndsAt={subscription.trialEndsAt.toISOString()} />
+        )}
+
+        {/* Header */}
+        <DashboardHeader
+          shopName={session.shop.name}
+          userName={session.user.name}
+        />
+
+        {/* Content */}
+        <main className="flex-1 p-4 pb-20 md:p-6 md:pb-6">{children}</main>
       </div>
+
+      {/* Mobile bottom nav */}
+      <MobileNav />
     </div>
   );
 }
