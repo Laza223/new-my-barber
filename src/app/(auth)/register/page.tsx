@@ -1,20 +1,32 @@
 /**
  * Página de registro.
- * Se implementa con el formulario en la fase de auth.
+ * Si ya está autenticado → redirect a /dashboard.
  */
-export default function RegisterPage() {
+import { RegisterForm } from '@/components/auth/register-form';
+import { getSession } from '@/server/lib/get-session';
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+
+export const metadata: Metadata = {
+  title: 'Crear cuenta',
+};
+
+export default async function RegisterPage() {
+  const session = await getSession();
+
+  if (session) {
+    redirect('/dashboard');
+  }
+
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-xl font-semibold">Creá tu cuenta</h2>
-        <p className="text-sm text-muted-foreground">
-          Registrate gratis y empezá a gestionar tu barbería.
+    <div>
+      <div className="mb-6">
+        <h2 className="font-display text-xl font-semibold">Crear cuenta</h2>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Registrate para empezar a gestionar tu barbería
         </p>
       </div>
-      {/* RegisterForm component — se implementa en fase de auth */}
-      <p className="text-sm text-muted-foreground">
-        Formulario de registro — próxima fase
-      </p>
+      <RegisterForm />
     </div>
   );
 }

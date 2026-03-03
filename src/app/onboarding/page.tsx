@@ -1,21 +1,34 @@
 /**
  * Wizard de onboarding — 5 pasos.
- * Se accede post-registro. Si ya completó → redirect a dashboard.
+ * Server Component: verifica auth y redirect si ya tiene shop.
  */
-export default function OnboardingPage() {
+import { OnboardingWizard } from '@/components/onboarding/onboarding-wizard';
+import { getSession } from '@/server/lib/get-session';
+import { shopRepository } from '@/server/repositories/shop.repository';
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+
+export const metadata: Metadata = {
+  title: 'Configurá tu barbería — My Barber',
+};
+
+export default async function OnboardingPage() {
+  const session = await getSession();
+
+  if (!session) {
+    redirect('/login');
+  }
+
+  // Si ya tiene barbería → dashboard
+  const shop = await shopRepository.findByOwnerId(session.user.id);
+  if (shop) {
+    redirect('/dashboard');
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-2xl space-y-6 px-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Configurá tu barbería</h1>
-          <p className="text-muted-foreground">
-            En 5 pasos vas a tener todo listo para empezar.
-          </p>
-        </div>
-        {/* OnboardingWizard component — se implementa en fase de onboarding */}
-        <p className="text-center text-sm text-muted-foreground">
-          Wizard de onboarding — próxima fase
-        </p>
+    <div className="from-background via-background to-primary/5 flex min-h-screen items-center justify-center bg-gradient-to-br p-4">
+      <div className="w-full max-w-2xl">
+        <OnboardingWizard userName={session.user.name} />
       </div>
     </div>
   );

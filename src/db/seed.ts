@@ -50,6 +50,8 @@ async function seed() {
     })
     .returning();
 
+  if (!owner) throw new Error('Failed to create owner');
+
   console.log(`   ✓ Owner: ${owner.email} (${owner.id})`);
 
   // ── 3. Crear barbería ──
@@ -67,6 +69,8 @@ async function seed() {
       summaryHour: 22,
     })
     .returning();
+
+  if (!shop) throw new Error('Failed to create shop');
 
   console.log(`   ✓ Barbería: ${shop.name} (${shop.id})`);
 
@@ -87,6 +91,8 @@ async function seed() {
     })
     .returning();
 
+  if (!proOwner) throw new Error('Failed to create proOwner');
+
   const [proCarlos] = await db
     .insert(schema.professionals)
     .values({
@@ -98,6 +104,8 @@ async function seed() {
     })
     .returning();
 
+  if (!proCarlos) throw new Error('Failed to create proCarlos');
+
   const [proMartín] = await db
     .insert(schema.professionals)
     .values({
@@ -108,6 +116,8 @@ async function seed() {
       colorIndex: 2,
     })
     .returning();
+
+  if (!proMartín) throw new Error('Failed to create proMartín');
 
   const pros = [proOwner, proCarlos, proMartín];
   console.log(`   ✓ ${pros.length} profesionales creados`);
@@ -133,9 +143,13 @@ async function seed() {
   // ── 6. Crear ventas (50, últimos 30 días) ──
   console.log('💰 Creando ventas...');
 
-  const paymentMethods: Array<
-    'cash' | 'transfer' | 'mercadopago' | 'debit' | 'credit'
-  > = [
+  const paymentMethods: (
+    | 'cash'
+    | 'transfer'
+    | 'mercadopago'
+    | 'debit'
+    | 'credit'
+  )[] = [
     'cash',
     'cash',
     'cash', // 30% efectivo (más común)
@@ -170,14 +184,15 @@ async function seed() {
     const randomHour = 9 + Math.floor(Math.random() * 11); // 9:00 - 19:59
     const randomMin = Math.floor(Math.random() * 60);
 
-    const pro = pros[Math.floor(Math.random() * pros.length)];
-    const svc =
-      servicesCreated[Math.floor(Math.random() * servicesCreated.length)];
+    const proIdx = Math.floor(Math.random() * pros.length);
+    const svcIdx = Math.floor(Math.random() * servicesCreated.length);
+    const pmIdx = Math.floor(Math.random() * paymentMethods.length);
+    const pro = pros[proIdx];
+    const svc = servicesCreated[svcIdx];
+    const pm = paymentMethods[pmIdx];
+    if (!pro || !svc || !pm) continue;
 
     const commissionAmount = Math.round((svc.price * pro.commissionRate) / 100);
-
-    const pm =
-      paymentMethods[Math.floor(Math.random() * paymentMethods.length)];
 
     salesData.push({
       shopId: shop.id,

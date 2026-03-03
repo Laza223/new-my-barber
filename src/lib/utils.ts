@@ -54,3 +54,30 @@ export function toBusinessDate(date: Date): string {
 export async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+/**
+ * Parsea un input de moneda argentina a centavos (integer).
+ * Acepta formatos: "$1.234,56", "1234.56", "1234,56", "1234"
+ * Retorna centavos: "1234,56" → 123456
+ */
+export function parseCurrencyInput(value: string): number {
+  if (!value) return 0;
+  // Quitar $, puntos de miles, espacios
+  const cleaned = value.replace(/[$\s.]/g, '').replace(',', '.');
+  const num = parseFloat(cleaned);
+  if (isNaN(num)) return 0;
+  return Math.round(num * 100);
+}
+
+/**
+ * Extrae las iniciales de un nombre (máximo 2 letras).
+ * "Lázaro Owner" → "LO"
+ */
+export function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? '')
+    .join('');
+}

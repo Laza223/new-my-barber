@@ -1,22 +1,16 @@
 /**
- * Better-Auth catch-all handler.
- * Maneja /api/auth/sign-in, /api/auth/sign-up, /api/auth/session, etc.
+ * Better-Auth catch-all route handler.
+ * Delega todas las rutas de /api/auth/* a Better-Auth.
  *
- * Se configura en la fase de auth cuando se implemente better-auth.
+ * Endpoints manejados automáticamente:
+ * - POST /api/auth/sign-up/email
+ * - POST /api/auth/sign-in/email
+ * - POST /api/auth/sign-out
+ * - GET  /api/auth/session
+ * - POST /api/auth/verify-email
+ * - etc.
  */
-import { NextResponse } from 'next/server';
+import { auth } from '@/server/lib/auth';
+import { toNextJsHandler } from 'better-auth/next-js';
 
-// Placeholder hasta que se configure better-auth
-export async function GET() {
-  return NextResponse.json(
-    { error: 'Auth not configured yet' },
-    { status: 501 },
-  );
-}
-
-export async function POST() {
-  return NextResponse.json(
-    { error: 'Auth not configured yet' },
-    { status: 501 },
-  );
-}
+export const { GET, POST } = toNextJsHandler(auth);
