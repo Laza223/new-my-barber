@@ -69,14 +69,39 @@ export type PlanId = (typeof PLANS)[keyof typeof PLANS]['id'];
 // ── Métodos de Pago ─────────────────────────────────────
 
 export const PAYMENT_METHODS = [
-  { id: 'cash' as const, label: 'Efectivo', icon: '💵' },
-  { id: 'card' as const, label: 'Tarjeta', icon: '💳' },
-  { id: 'transfer' as const, label: 'Transferencia', icon: '🏦' },
-  { id: 'mercadopago' as const, label: 'MercadoPago', icon: '📱' },
+  {
+    id: 'cash' as const,
+    label: 'Efectivo',
+    icon: '💵',
+    color: 'text-emerald-500',
+  },
+  {
+    id: 'transfer' as const,
+    label: 'Transferencia',
+    icon: '📱',
+    color: 'text-blue-500',
+  },
+  {
+    id: 'mercadopago' as const,
+    label: 'MercadoPago',
+    icon: '🟦',
+    color: 'text-cyan-500',
+  },
+  {
+    id: 'debit' as const,
+    label: 'Débito',
+    icon: '💳',
+    color: 'text-amber-500',
+  },
+  {
+    id: 'credit' as const,
+    label: 'Crédito',
+    icon: '💳',
+    color: 'text-orange-500',
+  },
 ] as const;
 
-export type PaymentMethodId =
-  (typeof PAYMENT_METHODS)[number]['id'];
+export type PaymentMethodId = (typeof PAYMENT_METHODS)[number]['id'];
 
 // ── Servicios Sugeridos (para onboarding) ───────────────
 
