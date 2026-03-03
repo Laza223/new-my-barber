@@ -1,13 +1,40 @@
 /**
- * Configuración del negocio y cuenta del usuario.
+ * Settings — Server Component.
  */
-export default function SettingsPage() {
+import { SettingsPage } from '@/components/settings/settings-page';
+import { requireOwner } from '@/server/lib/get-session';
+import { subscriptionRepository } from '@/server/repositories/subscription.repository';
+import { redirect } from 'next/navigation';
+
+export default async function SettingsPageRoute() {
+  let session;
+  try {
+    session = await requireOwner();
+  } catch {
+    redirect('/login');
+  }
+
+  const subscription = await subscriptionRepository.findByShopId(
+    session.shop.id,
+  );
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Configuración</h1>
-      <p className="text-muted-foreground">
-        Ajustes del negocio — se implementa en fase de settings
-      </p>
-    </div>
+    <SettingsPage
+      shopId={session.shop.id}
+      shopName={session.shop.name}
+      userName={session.user.name}
+      userEmail={session.user.email}
+      subscription={
+        subscription
+          ? {
+              plan: subscription.plan,
+              status: subscription.status,
+              trialEndsAt: subscription.trialEndsAt?.toISOString() ?? null,
+              currentPeriodEnd:
+                subscription.currentPeriodEnd?.toISOString() ?? null,
+            }
+          : null
+      }
+    />
   );
 }
