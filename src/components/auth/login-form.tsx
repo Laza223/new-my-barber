@@ -45,7 +45,7 @@ export function LoginForm() {
       } else {
         toast.success('¡Bienvenido!');
         // Redirect to dashboard (middleware will handle onboarding check)
-        router.push('/dashboard');
+        router.push('/inicio');
         router.refresh();
       }
     } catch {

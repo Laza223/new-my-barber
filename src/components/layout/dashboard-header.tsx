@@ -4,9 +4,11 @@
 'use client';
 
 import { getInitials } from '@/lib/utils';
+import { signOut } from '@/server/lib/auth-client';
 import { LogOut, Moon, Settings, Sun, User } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
 interface DashboardHeaderProps {
@@ -16,6 +18,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ shopName, userName }: DashboardHeaderProps) {
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   return (
@@ -81,10 +84,10 @@ export function DashboardHeader({ shopName, userName }: DashboardHeaderProps) {
                 </Link>
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     setMenuOpen(false);
-                    // Sign out handled by auth
-                    window.location.href = '/login';
+                    await signOut();
+                    router.push('/login');
                   }}
                   className="text-destructive hover:bg-muted flex w-full items-center gap-2 px-3 py-2 text-sm"
                 >

@@ -71,7 +71,7 @@ export function middleware(request: NextRequest) {
 
   // 4. Si está en onboarding pero ya completó → redirigir al dashboard
   if (onboardingCompleted === 'true' && pathname.startsWith('/onboarding')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(new URL('/inicio', request.url));
   }
 
   return NextResponse.next();

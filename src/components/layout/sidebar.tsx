@@ -5,16 +5,13 @@
 
 import { cn } from '@/lib/utils';
 import {
-  BarChart3,
   ChevronLeft,
   ChevronRight,
-  ClipboardList,
   Crown,
+  Home,
   LayoutDashboard,
   PlusCircle,
-  Scissors,
   Settings,
-  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -26,6 +23,7 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS = [
+  { href: '/inicio', label: 'Inicio', icon: Home },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   {
     href: '/new-sale',
@@ -33,10 +31,6 @@ const NAV_ITEMS = [
     icon: PlusCircle,
     highlight: true,
   },
-  { href: '/sales', label: 'Historial', icon: ClipboardList },
-  { href: '/professionals', label: 'Equipo', icon: Users },
-  { href: '/services', label: 'Servicios', icon: Scissors },
-  { href: '/reports', label: 'Reportes', icon: BarChart3, pro: true },
   { href: '/settings', label: 'Configuración', icon: Settings },
 ];
 
@@ -78,8 +72,8 @@ export function Sidebar({ shopName, planId }: SidebarProps) {
       <nav className="flex-1 space-y-0.5 px-2 py-2">
         {NAV_ITEMS.map((item) => {
           const isActive =
-            item.href === '/dashboard'
-              ? pathname === '/dashboard' || pathname === '/'
+            item.href === '/inicio'
+              ? pathname === '/inicio' || pathname === '/'
               : pathname.startsWith(item.href);
           const Icon = item.icon;
 
@@ -98,16 +92,7 @@ export function Sidebar({ shopName, planId }: SidebarProps) {
               title={collapsed ? item.label : undefined}
             >
               <Icon className="h-4.5 w-4.5 shrink-0" />
-              {!collapsed && (
-                <>
-                  <span className="truncate">{item.label}</span>
-                  {item.pro && planId === 'free' && (
-                    <span className="ml-auto rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600">
-                      PRO
-                    </span>
-                  )}
-                </>
-              )}
+              {!collapsed && <span className="truncate">{item.label}</span>}
             </Link>
           );
         })}

@@ -172,7 +172,7 @@ export const dashboardRepository = {
         .groupBy(professionals.id, professionals.name, professionals.colorIndex)
         .orderBy(desc(sql`coalesce(sum(${sales.servicePrice}), 0)`)),
 
-      // Recent sales (last 10)
+      // Today's sales (all, no limit)
       db
         .select({
           id: sales.id,
@@ -195,9 +195,8 @@ export const dashboardRepository = {
         })
         .from(sales)
         .innerJoin(professionals, eq(sales.professionalId, professionals.id))
-        .where(activeWhere)
-        .orderBy(desc(sales.saleDate), desc(sales.saleTime))
-        .limit(10),
+        .where(and(activeWhere, eq(sales.saleDate, today)))
+        .orderBy(desc(sales.saleTime)),
 
       // Shop (for goal)
       db.query.shops.findFirst({ where: eq(shops.id, shopId) }),

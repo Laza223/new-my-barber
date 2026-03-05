@@ -1,25 +1,18 @@
 /**
  * MobileNav — bottom tab bar.
+ * 3 tabs: Inicio, Dashboard, Config.
  */
 'use client';
 
 import { cn } from '@/lib/utils';
-import {
-  ClipboardList,
-  LayoutDashboard,
-  MoreHorizontal,
-  Plus,
-  Users,
-} from 'lucide-react';
+import { Home, LayoutDashboard, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const TABS = [
-  { href: '/dashboard', label: 'Inicio', icon: LayoutDashboard },
-  { href: '/sales', label: 'Ventas', icon: ClipboardList },
-  { href: '/new-sale', label: 'Venta', icon: Plus, special: true },
-  { href: '/professionals', label: 'Equipo', icon: Users },
-  { href: '/settings', label: 'Más', icon: MoreHorizontal },
+  { href: '/inicio', label: 'Inicio', icon: Home },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/settings', label: 'Config', icon: Settings },
 ];
 
 export function MobileNav() {
@@ -30,24 +23,10 @@ export function MobileNav() {
       <div className="flex items-center justify-around">
         {TABS.map((tab) => {
           const isActive =
-            tab.href === '/dashboard'
-              ? pathname === '/dashboard' || pathname === '/'
+            tab.href === '/inicio'
+              ? pathname === '/inicio' || pathname === '/'
               : pathname.startsWith(tab.href);
           const Icon = tab.icon;
-
-          if (tab.special) {
-            return (
-              <Link
-                key={tab.href}
-                href={tab.href}
-                className="-mt-4 flex flex-col items-center"
-              >
-                <div className="bg-primary text-primary-foreground flex h-12 w-12 items-center justify-center rounded-full shadow-lg">
-                  <Icon className="h-5 w-5" />
-                </div>
-              </Link>
-            );
-          }
 
           return (
             <Link

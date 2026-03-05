@@ -63,7 +63,8 @@ function createAuth() {
 
     /* ── Sesión ── */
     session: {
-      expiresIn: 60 * 60 * 24 * 7, // 7 días
+      expiresIn: 60 * 60 * 24 * 30, // 30 días
+      updateAge: 60 * 60 * 24, // Refrescar cada 24h de actividad
       cookieCache: {
         enabled: true,
         maxAge: 60 * 5, // 5 min cache
