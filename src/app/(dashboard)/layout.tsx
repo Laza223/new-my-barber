@@ -32,6 +32,7 @@ export default async function DashboardLayout({
   );
   const planId = subscription?.plan ?? 'free';
   const isTrial =
+    planId !== 'free' &&
     subscription?.status === 'trialing' &&
     subscription?.trialEndsAt &&
     subscription.trialEndsAt > new Date();

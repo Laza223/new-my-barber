@@ -32,6 +32,9 @@ export default async function InicioRoute() {
       shopId={session.shop.id}
       today={data.today}
       recentSales={data.recentSales}
+      isNewShop={
+        data.thisMonth.salesCount === 0 && data.recentSales.length === 0
+      }
       saleFormData={{
         professionals: pros.map((p) => ({
           id: p.id,

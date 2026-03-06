@@ -62,6 +62,7 @@ interface InicioPageProps {
   shopId: string;
   today: DashboardData['today'];
   recentSales: SaleWithDetails[];
+  isNewShop: boolean;
   saleFormData: SaleFormData;
 }
 
@@ -69,6 +70,7 @@ export function InicioPage({
   shopId,
   today: initialToday,
   recentSales: initialSales,
+  isNewShop,
   saleFormData,
 }: InicioPageProps) {
   const [today, setToday] = React.useState(initialToday);
@@ -136,16 +138,30 @@ export function InicioPage({
 
           {recentSales.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center py-6 text-center">
-              <Scissors className="text-muted-foreground/40 mb-2 h-8 w-8" />
-              <p className="text-muted-foreground text-sm">
-                No hay ventas registradas hoy
-              </p>
+              {isNewShop ? (
+                <>
+                  <span className="mb-2 text-3xl">🚀</span>
+                  <p className="text-sm font-medium">
+                    ¡Bienvenido! Registrá tu primera venta
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    Las métricas aparecerán acá cuando empieces
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Scissors className="text-muted-foreground/40 mb-2 h-8 w-8" />
+                  <p className="text-muted-foreground text-sm">
+                    No hay ventas registradas hoy
+                  </p>
+                </>
+              )}
               <button
                 type="button"
                 onClick={() => setFormOpen(true)}
                 className="text-primary mt-1.5 text-sm font-medium hover:underline"
               >
-                Registrar primera venta →
+                Registrar {isNewShop ? 'primera' : 'una'} venta →
               </button>
             </div>
           ) : (

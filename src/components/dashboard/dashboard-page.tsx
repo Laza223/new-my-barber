@@ -6,16 +6,42 @@
 import type { DashboardData } from '@/lib/types/dashboard';
 import { getDashboardAction } from '@/server/actions/dashboard.actions';
 import { Plus } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import * as React from 'react';
 import { InsightsSection } from './insights-section';
 import { MonthProgressCard } from './month-progress-card';
-import { PaymentBreakdown } from './payment-breakdown';
 import { ProfessionalRanking } from './professional-ranking';
 import { RecentSalesList } from './recent-sales-list';
-import { RevenueChart } from './revenue-chart';
 import { TodayCard } from './today-card';
 import { TopServicesChart } from './top-services-chart';
+
+/* ── Lazy-loaded recharts components (keep out of initial bundle) ── */
+const RevenueChart = dynamic(
+  () => import('./revenue-chart').then((m) => m.RevenueChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-card animate-pulse rounded-xl border p-5">
+        <div className="bg-muted mb-4 h-4 w-24 rounded" />
+        <div className="bg-muted h-[200px] rounded-lg" />
+      </div>
+    ),
+  },
+);
+
+const PaymentBreakdown = dynamic(
+  () => import('./payment-breakdown').then((m) => m.PaymentBreakdown),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-card animate-pulse rounded-xl border p-5">
+        <div className="bg-muted mb-4 h-4 w-28 rounded" />
+        <div className="bg-muted mx-auto h-[140px] w-[140px] rounded-full" />
+      </div>
+    ),
+  },
+);
 
 interface DashboardPageProps {
   shopId: string;
