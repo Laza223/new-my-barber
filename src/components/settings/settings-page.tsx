@@ -3,8 +3,11 @@
  */
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { CreditCard, Store, User } from 'lucide-react';
+import { updateShopAction } from '@/server/actions/shop.actions';
+import { CreditCard, Loader2, Store, User } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import * as React from 'react';
 import { toast } from 'sonner';
@@ -41,6 +44,11 @@ export function SettingsPage({
   const searchParams = useSearchParams();
   const [tab, setTab] = React.useState<Tab>('plan');
 
+  // Editable shop fields
+  const [name, setName] = React.useState(shopName);
+  const [saving, setSaving] = React.useState(false);
+  const hasChanges = name.trim() !== shopName;
+
   // Handle payment return
   React.useEffect(() => {
     const payment = searchParams.get('payment');
@@ -54,6 +62,25 @@ export function SettingsPage({
       );
     }
   }, [searchParams]);
+
+  async function handleSaveShop() {
+    if (!name.trim()) {
+      toast.error('El nombre no puede estar vacío');
+      return;
+    }
+    setSaving(true);
+    const formData = new FormData();
+    formData.set('name', name.trim());
+    const result = await updateShopAction(shopId, formData);
+    if (result.success) {
+      toast.success('Barbería actualizada');
+      // Reload to update sidebar/header with new name
+      window.location.reload();
+    } else {
+      toast.error(result.error ?? 'Error al guardar');
+    }
+    setSaving(false);
+  }
 
   return (
     <div className="space-y-6">
@@ -98,14 +125,33 @@ export function SettingsPage({
           <h2 className="text-lg font-bold">Mi Barbería</h2>
           <div className="space-y-3">
             <div>
-              <label className="text-muted-foreground text-xs">Nombre</label>
-              <p className="text-sm font-medium">{shopName}</p>
+              <label
+                htmlFor="shop-name"
+                className="text-muted-foreground mb-1 block text-xs"
+              >
+                Nombre
+              </label>
+              <Input
+                id="shop-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nombre de tu barbería"
+                maxLength={50}
+              />
             </div>
-            <p className="text-muted-foreground text-xs">
-              Para editar los datos de tu barbería, contactanos a
-              soporte@mybarber.app
-            </p>
           </div>
+          {hasChanges && (
+            <Button onClick={handleSaveShop} disabled={saving} size="sm">
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                'Guardar cambios'
+              )}
+            </Button>
+          )}
         </div>
       )}
 

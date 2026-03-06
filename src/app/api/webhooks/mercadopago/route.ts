@@ -2,7 +2,9 @@
  * Webhook de MercadoPago.
  * Procesa notificaciones de pago.
  */
+import { PLANS } from '@/lib/constants';
 import { mercadopago } from '@/server/lib/mercadopago';
+import { shopRepository } from '@/server/repositories/shop.repository';
 import { subscriptionRepository } from '@/server/repositories/subscription.repository';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -54,6 +56,12 @@ async function processPayment(paymentId: string) {
 
     switch (payment.status) {
       case 'approved': {
+        // Idempotency: skip if already processed this payment
+        if (sub.mpSubscriptionId === String(payment.id)) {
+          console.log(`[WEBHOOK] ⏭️ Already processed payment ${payment.id}`);
+          break;
+        }
+
         // Payment approved → activate subscription
         const now = new Date();
         const periodEnd = new Date(now);
@@ -69,6 +77,15 @@ async function processPayment(paymentId: string) {
           trialEndsAt: null,
           cancelledAt: null,
         });
+
+        // Update shop daily sales limit based on new plan
+        const planKey = planId.toUpperCase() as keyof typeof PLANS;
+        const planConfig = PLANS[planKey];
+        if (planConfig) {
+          await shopRepository.update(shopId, {
+            dailySalesLimit: planConfig.limits.maxSalesPerDay,
+          });
+        }
 
         console.log(
           `[WEBHOOK] ✅ Subscription activated: shop=${shopId} plan=${planId}`,

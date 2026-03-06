@@ -1,13 +1,12 @@
-/**
- * Dashboard Layout — sidebar + mobile nav + header + trial banner.
- * Server component that fetches session data for layout.
- */
 import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { Sidebar } from '@/components/layout/sidebar';
 import { TrialBanner } from '@/components/subscription/trial-banner';
-import { requireOwner } from '@/server/lib/get-session';
+import { db } from '@/db';
+import { shops } from '@/db/schema/shops';
+import { getSession } from '@/server/lib/get-session';
 import { subscriptionRepository } from '@/server/repositories/subscription.repository';
+import { eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
@@ -20,16 +19,15 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let session;
-  try {
-    session = await requireOwner();
-  } catch {
-    redirect('/login');
-  }
+  const session = await getSession();
+  if (!session) redirect('/login');
 
-  const subscription = await subscriptionRepository.findByShopId(
-    session.shop.id,
-  );
+  const shop = await db.query.shops.findFirst({
+    where: eq(shops.ownerId, session.user.id),
+  });
+  if (!shop) redirect('/onboarding');
+
+  const subscription = await subscriptionRepository.findByShopId(shop.id);
   const planId = subscription?.plan ?? 'free';
   const isTrial =
     planId !== 'free' &&
@@ -40,7 +38,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
-      <Sidebar shopName={session.shop.name} planId={planId} />
+      <Sidebar shopName={shop.name} planId={planId} />
 
       {/* Main area */}
       <div className="flex min-w-0 flex-1 flex-col">
@@ -50,10 +48,7 @@ export default async function DashboardLayout({
         )}
 
         {/* Header */}
-        <DashboardHeader
-          shopName={session.shop.name}
-          userName={session.user.name}
-        />
+        <DashboardHeader shopName={shop.name} userName={session.user.name} />
 
         {/* Content */}
         <main className="flex-1 p-4 pb-20 md:p-6 md:pb-6">{children}</main>

@@ -16,8 +16,10 @@ import { cn } from '@/lib/utils';
 import {
   cancelSubscriptionAction,
   createCheckoutAction,
+  getSubscriptionAction,
 } from '@/server/actions/subscription.actions';
 import { ArrowRight, Check, Crown, Loader2, X } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import * as React from 'react';
 import { toast } from 'sonner';
 
@@ -82,6 +84,9 @@ export function PlanSection({
   const [loading, setLoading] = React.useState<string | null>(null);
   const [cancelOpen, setCancelOpen] = React.useState(false);
   const [cancelling, setCancelling] = React.useState(false);
+  const [processingPayment, setProcessingPayment] = React.useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   const isTrial = status === 'trialing';
   const trialDaysLeft = trialEndsAt
@@ -90,6 +95,36 @@ export function PlanSection({
         Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000),
       )
     : 0;
+
+  // Poll subscription after returning from MercadoPago with ?payment=success
+  React.useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+    if (paymentStatus !== 'success') return;
+
+    setProcessingPayment(true);
+    let attempts = 0;
+    const maxAttempts = 10; // 10 × 3s = 30s max
+
+    const interval = setInterval(async () => {
+      attempts++;
+      const result = await getSubscriptionAction(shopId);
+      if (result.success && result.data.plan !== currentPlan) {
+        clearInterval(interval);
+        toast.success('¡Plan activado correctamente!');
+        // Clean URL and reload to reflect new plan everywhere
+        window.location.href = '/settings';
+      } else if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        setProcessingPayment(false);
+        toast.info(
+          'El pago está siendo procesado. Tu plan se actualizará en unos minutos.',
+        );
+        router.replace('/settings');
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [searchParams, shopId, currentPlan, router]);
 
   async function handleUpgrade(planId: 'individual' | 'business') {
     setLoading(planId);
@@ -125,6 +160,17 @@ export function PlanSection({
 
   return (
     <div className="space-y-6">
+      {/* Payment processing banner */}
+      {processingPayment && (
+        <div className="flex items-center gap-3 rounded-lg border border-blue-500/30 bg-blue-500/5 px-4 py-3 text-sm">
+          <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+          <span>
+            <strong>Procesando tu pago...</strong> Esto puede tardar unos
+            segundos.
+          </span>
+        </div>
+      )}
+
       {/* Status banner */}
       {isTrial && (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm">

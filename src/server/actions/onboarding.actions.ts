@@ -5,8 +5,10 @@
 
 import type { ActionResponse } from '@/lib/types/common';
 import { createShopSchema } from '@/lib/validations/shop';
+import { welcomeEmail } from '@/server/emails/templates';
 import { AppError, ConflictError } from '@/server/lib/errors';
 import { requireSession } from '@/server/lib/get-session';
+import { sendEmail } from '@/server/lib/resend';
 import { professionalRepository } from '@/server/repositories/professional.repository';
 import { serviceRepository } from '@/server/repositories/service.repository';
 import { shopRepository } from '@/server/repositories/shop.repository';
@@ -125,6 +127,14 @@ export async function setupShopAction(
         isOwner: false,
       });
     }
+
+    // 6. Send welcome email (fire-and-forget)
+    const email = welcomeEmail(session.user.name);
+    sendEmail({
+      to: session.user.email,
+      subject: email.subject,
+      html: email.html,
+    });
 
     return { success: true, data: { shopId: shop.id } };
   } catch (error) {
