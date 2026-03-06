@@ -213,7 +213,7 @@ export function SaleFlow({
         {!canSell ? (
           <DailyLimitWarning
             todaySalesCount={todaySalesCount}
-            dailyLimit={dailySalesLimit ?? 15}
+            dailyLimit={dailySalesLimit ?? 10}
           />
         ) : (
           <>

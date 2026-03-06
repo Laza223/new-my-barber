@@ -65,7 +65,7 @@ async function seed() {
       address: 'Av. Corrientes 1234, CABA',
       phone: '+5491155001234',
       monthlyGoal: 200000000, // $2.000.000 en centavos
-      dailySalesLimit: 15,
+      dailySalesLimit: 10,
       summaryHour: 22,
     })
     .returning();

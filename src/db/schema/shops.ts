@@ -52,11 +52,11 @@ export const shops = pgTable('shops', {
 
   /**
    * Límite de ventas diarias según plan:
-   * - free: 15/día
+   * - free: 10/día
    * - individual: ilimitado (se setea en 9999)
    * - business: ilimitado (se setea en 9999)
    */
-  dailySalesLimit: integer('daily_sales_limit').default(15).notNull(),
+  dailySalesLimit: integer('daily_sales_limit').default(10).notNull(),
 
   /** Número de WhatsApp para resúmenes (con código país) */
   whatsappNumber: varchar('whatsapp_number', { length: 20 }),

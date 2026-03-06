@@ -27,6 +27,6 @@ export interface PlanAccess {
   allowed: boolean;
   /** Razón de bloqueo (ej: "Disponible en plan Business") */
   reason?: string;
-  /** Límite numérico si aplica (ej: max 15 ventas/día) */
+  /** Límite numérico si aplica (ej: max 10 ventas/día) */
   limit?: number;
 }

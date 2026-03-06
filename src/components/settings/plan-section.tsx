@@ -39,7 +39,7 @@ const PLAN_FEATURES = [
   },
   {
     label: 'Ventas diarias',
-    free: '15',
+    free: '10',
     individual: 'Ilimitadas',
     business: 'Ilimitadas',
   },

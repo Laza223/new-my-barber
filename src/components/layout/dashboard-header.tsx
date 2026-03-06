@@ -17,7 +17,7 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ shopName, userName }: DashboardHeaderProps) {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = React.useState(false);
 
@@ -38,7 +38,7 @@ export function DashboardHeader({ shopName, userName }: DashboardHeaderProps) {
         {/* Theme toggle */}
         <button
           type="button"
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
           className="hover:bg-muted rounded-md p-2 transition-colors"
         >
           <Sun className="h-4 w-4 dark:hidden" />

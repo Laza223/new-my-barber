@@ -16,7 +16,7 @@ describe('PLANS', () => {
     expect(PLANS.FREE.priceCents).toBe(0);
     expect(PLANS.FREE.limits.maxProfessionals).toBe(1);
     expect(PLANS.FREE.limits.maxServices).toBe(3);
-    expect(PLANS.FREE.limits.maxSalesPerDay).toBe(15);
+    expect(PLANS.FREE.limits.maxSalesPerDay).toBe(10);
   });
 
   it('BUSINESS plan has highest limits', () => {

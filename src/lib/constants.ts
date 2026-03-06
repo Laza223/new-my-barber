@@ -17,7 +17,7 @@ export const PLANS = {
     limits: {
       maxProfessionals: 1,
       maxServices: 3,
-      maxSalesPerDay: 15,
+      maxSalesPerDay: 10,
       historyDays: 7,
       hasCommissions: false,
       hasReports: false,
