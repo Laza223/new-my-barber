@@ -93,3 +93,56 @@ export function trialWarningEmail(userName: string, daysLeft: number) {
     `),
   };
 }
+
+/** Plan activated — sent after successful payment */
+export function planActivatedEmail(userName: string, planName: string) {
+  return {
+    subject: `✅ Plan ${planName} activado`,
+    html: layout(`
+      <h2 style="margin:0 0 16px;font-size:22px;color:#18181b;">¡Hola ${userName}!</h2>
+      <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px;">
+        Tu plan <strong style="color:#22c55e;">${planName}</strong> fue activado correctamente.
+        Ya tenés acceso a todas las funciones incluidas.
+      </p>
+      <p style="color:#3f3f46;line-height:1.6;margin:0 0 24px;">
+        Podés ver los detalles de tu plan en cualquier momento desde Ajustes.
+      </p>
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${BASE_URL}/inicio"
+           style="display:inline-block;padding:12px 32px;background:#22c55e;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">
+          Ir a mi barbería →
+        </a>
+      </div>
+    `),
+  };
+}
+
+/** Cancellation confirmation — sent when user cancels */
+export function cancellationEmail(
+  userName: string,
+  planName: string,
+  periodEnd: string,
+) {
+  return {
+    subject: '😔 Suscripción cancelada',
+    html: layout(`
+      <h2 style="margin:0 0 16px;font-size:22px;color:#18181b;">Hola ${userName},</h2>
+      <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px;">
+        Tu suscripción al plan <strong>${planName}</strong> fue cancelada.
+      </p>
+      <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px;">
+        Vas a mantener el acceso a todas las funciones hasta el
+        <strong>${periodEnd}</strong>. Después, tu cuenta pasará al plan Free.
+      </p>
+      <p style="color:#3f3f46;line-height:1.6;margin:0 0 24px;">
+        Si cambiás de idea, podés reactivar tu plan desde Ajustes en cualquier momento.
+      </p>
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${BASE_URL}/settings"
+           style="display:inline-block;padding:12px 32px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">
+          Ir a Ajustes →
+        </a>
+      </div>
+    `),
+  };
+}

@@ -32,6 +32,7 @@ import {
   text,
   time,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -90,6 +91,12 @@ export const sales = pgTable(
 
     notes: text('notes'),
 
+    /** Precio original antes del descuento (centavos, null si no hubo promo) */
+    originalPrice: integer('original_price'),
+
+    /** Porcentaje de descuento aplicado (null si no hubo promo) */
+    discountPercent: integer('discount_percent'),
+
     /** Fecha de negocio (puede diferir del createdAt si se carga retroactivamente) */
     saleDate: date('sale_date').notNull(),
 
@@ -102,6 +109,10 @@ export const sales = pgTable(
 
     /** Soft delete para anulaciones. NO hay updatedAt. */
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
+
+    /** Token de idempotencia para prevenir ventas duplicadas.
+     *  Generado client-side (UUID), validado con unique index. */
+    idempotencyKey: varchar('idempotency_key', { length: 64 }),
   },
   (table) => [
     /** Ventas del día de una barbería (la query más frecuente) */
@@ -123,5 +134,8 @@ export const sales = pgTable(
       table.saleDate,
       table.deletedAt,
     ),
+
+    /** Idempotency: previene ventas duplicadas */
+    uniqueIndex('idx_sales_idempotency').on(table.idempotencyKey),
   ],
 );

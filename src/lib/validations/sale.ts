@@ -27,6 +27,8 @@ export const createSaleSchema = z.object({
     .string()
     .max(500, 'Las notas no pueden superar 500 caracteres')
     .optional(),
+  /** Token de idempotencia para prevenir duplicados */
+  idempotencyKey: z.string().max(64).optional(),
 });
 
 export const salesFilterSchema = z.object({

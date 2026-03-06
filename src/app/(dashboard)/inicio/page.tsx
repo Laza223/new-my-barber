@@ -19,13 +19,19 @@ export default async function InicioRoute() {
     redirect('/login');
   }
 
-  const [data, pros, svcs, todayCount, dailyLimit] = await Promise.all([
-    dashboardService.getDashboard(session.shop.id, session.user.id),
-    professionalRepository.findByShopId(session.shop.id, true),
-    serviceRepository.findByShopId(session.shop.id, true),
-    saleRepository.countTodaySales(session.shop.id),
-    subscriptionService.checkDailySalesLimit(session.shop.id),
-  ]);
+  let data, pros, svcs, todayCount, dailyLimit;
+  try {
+    [data, pros, svcs, todayCount, dailyLimit] = await Promise.all([
+      dashboardService.getDashboard(session.shop.id, session.user.id),
+      professionalRepository.findByShopId(session.shop.id, true),
+      serviceRepository.findByShopId(session.shop.id, true),
+      saleRepository.countTodaySales(session.shop.id),
+      subscriptionService.checkDailySalesLimit(session.shop.id),
+    ]);
+  } catch (err) {
+    console.error('[INICIO] ❌ Error loading page data:', err);
+    throw err;
+  }
 
   return (
     <InicioPage

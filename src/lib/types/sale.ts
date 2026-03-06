@@ -25,6 +25,8 @@ export interface CreateSaleInput {
   /** Propina en CENTAVOS */
   tipAmount?: number;
   notes?: string;
+  /** Token de idempotencia para prevenir duplicados */
+  idempotencyKey?: string;
 }
 
 /** Venta con nombre del profesional (para listados) */

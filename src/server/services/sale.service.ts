@@ -11,8 +11,10 @@ import {
 } from '@/server/lib/errors';
 import { requireOwner, requireSession } from '@/server/lib/get-session';
 import { professionalRepository } from '@/server/repositories/professional.repository';
+import { promotionRepository } from '@/server/repositories/promotion.repository';
 import { saleRepository } from '@/server/repositories/sale.repository';
 import { serviceRepository } from '@/server/repositories/service.repository';
+import { promotionService } from '@/server/services/promotion.service';
 import { subscriptionService } from '@/server/services/subscription.service';
 
 const ARGENTINA_TZ = 'America/Argentina/Buenos_Aires';
@@ -63,8 +65,32 @@ export const saleService = {
       );
     }
 
+    // Idempotency: if key provided and sale already exists, return it
+    if (input.idempotencyKey) {
+      const existing = await saleRepository.findByIdempotencyKey(
+        input.idempotencyKey,
+      );
+      if (existing) return existing;
+    }
+
     // Calcular montos con SNAPSHOT de valores actuales
-    const servicePrice = svc.price;
+    let servicePrice = svc.price;
+    let originalPrice: number | null = null;
+    let appliedDiscount: number | null = null;
+
+    // Auto-apply active promotion for today
+    const activePromos = await promotionRepository.findActiveForToday(shopId);
+    const promoResult = promotionService.applyDiscount(
+      input.serviceId,
+      servicePrice,
+      activePromos,
+    );
+    if (promoResult) {
+      originalPrice = servicePrice;
+      appliedDiscount = promoResult.discountPercent;
+      servicePrice = promoResult.finalPrice;
+    }
+
     const commissionRate = pro.commissionRate;
     const commissionAmount = Math.round((servicePrice * commissionRate) / 100);
     const ownerAmount = servicePrice - commissionAmount;
@@ -87,6 +113,9 @@ export const saleService = {
       notes: input.notes,
       saleDate,
       saleTime,
+      idempotencyKey: input.idempotencyKey,
+      originalPrice,
+      discountPercent: appliedDiscount,
     });
   },
 

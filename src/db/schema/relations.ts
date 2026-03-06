@@ -11,6 +11,7 @@ import { relations } from 'drizzle-orm';
 import { accounts } from './accounts';
 import { paymentHistory } from './payment-history';
 import { professionals } from './professionals';
+import { promotions } from './promotions';
 import { sales } from './sales';
 import { services } from './services';
 import { sessions } from './sessions';
@@ -70,6 +71,8 @@ export const shopsRelations = relations(shops, ({ one, many }) => ({
     fields: [shops.id],
     references: [subscriptions.shopId],
   }),
+  /** Promociones de la barbería */
+  promotions: many(promotions),
 }));
 
 // ── Professional relations ──────────────────────────
@@ -100,6 +103,8 @@ export const servicesRelations = relations(services, ({ one, many }) => ({
   }),
   /** Ventas de este servicio */
   sales: many(sales),
+  /** Promociones de este servicio */
+  promotions: many(promotions),
 }));
 
 // ── Sale relations ──────────────────────────────────
@@ -141,5 +146,17 @@ export const paymentHistoryRelations = relations(paymentHistory, ({ one }) => ({
   subscription: one(subscriptions, {
     fields: [paymentHistory.subscriptionId],
     references: [subscriptions.id],
+  }),
+}));
+
+// ── Promotion relations ─────────────────────────────
+export const promotionsRelations = relations(promotions, ({ one }) => ({
+  shop: one(shops, {
+    fields: [promotions.shopId],
+    references: [shops.id],
+  }),
+  service: one(services, {
+    fields: [promotions.serviceId],
+    references: [services.id],
   }),
 }));

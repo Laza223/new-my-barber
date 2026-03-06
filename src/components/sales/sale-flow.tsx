@@ -85,6 +85,18 @@ export function SaleFlow({
 
   const currentSvc = services.find((s) => s.id === selectedSvc);
   const isReady = selectedPro && selectedSvc && selectedPay;
+  const [idempotencyKey, setIdempotencyKey] = React.useState(() => {
+    // crypto.randomUUID() no existe en Safari < 15.4 / iOS < 15.4
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    // Fallback: UUID v4 manual
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  });
 
   async function handleSubmit() {
     if (!isReady || isSubmitting) return;
@@ -99,6 +111,7 @@ export function SaleFlow({
       formData.append('professionalId', selectedPro);
       formData.append('serviceId', selectedSvc);
       formData.append('paymentMethod', selectedPay);
+      formData.append('idempotencyKey', idempotencyKey);
 
       const result = await registerSaleAction(shopId, formData);
 
@@ -108,6 +121,8 @@ export function SaleFlow({
         setSuccessPrice(salePrice);
         setSelectedSvc(autoSvcId);
         setSelectedPay(null);
+        // Generate new idempotency key for next sale
+        setIdempotencyKey(crypto.randomUUID());
         // Show success animation
         setShowSuccess(true);
         setTimeout(() => {

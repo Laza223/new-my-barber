@@ -32,6 +32,7 @@ export async function registerSaleAction(
         ? Number(formData.get('tipAmount'))
         : undefined,
       notes: formData.get('notes') || undefined,
+      idempotencyKey: formData.get('idempotencyKey') || undefined,
     });
 
     if (!parsed.success) {

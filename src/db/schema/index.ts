@@ -12,6 +12,7 @@ export * from './enums';
 export * from './accounts';
 export * from './payment-history';
 export * from './professionals';
+export * from './promotions';
 export * from './sales';
 export * from './services';
 export * from './sessions';

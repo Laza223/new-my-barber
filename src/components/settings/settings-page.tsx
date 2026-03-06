@@ -7,17 +7,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { updateShopAction } from '@/server/actions/shop.actions';
-import { CreditCard, Loader2, Store, User } from 'lucide-react';
+import { CreditCard, Loader2, Sparkles, Store, User } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import * as React from 'react';
 import { toast } from 'sonner';
 import { PlanSection } from './plan-section';
+import { PromotionsTab } from './promotions-tab';
 
 interface SettingsPageProps {
   shopId: string;
   shopName: string;
   userName: string;
   userEmail: string;
+  services: { id: string; name: string }[];
   subscription: {
     plan: string;
     status: string;
@@ -26,11 +28,12 @@ interface SettingsPageProps {
   } | null;
 }
 
-type Tab = 'plan' | 'shop' | 'account';
+type Tab = 'plan' | 'shop' | 'promotions' | 'account';
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'plan', label: 'Plan', icon: CreditCard },
   { id: 'shop', label: 'Mi Barbería', icon: Store },
+  { id: 'promotions', label: 'Promos', icon: Sparkles },
   { id: 'account', label: 'Cuenta', icon: User },
 ];
 
@@ -39,6 +42,7 @@ export function SettingsPage({
   shopName,
   userName,
   userEmail,
+  services,
   subscription,
 }: SettingsPageProps) {
   const searchParams = useSearchParams();
@@ -153,6 +157,10 @@ export function SettingsPage({
             </Button>
           )}
         </div>
+      )}
+
+      {tab === 'promotions' && (
+        <PromotionsTab shopId={shopId} services={services} />
       )}
 
       {tab === 'account' && (

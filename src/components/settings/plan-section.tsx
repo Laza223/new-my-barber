@@ -322,21 +322,41 @@ export function PlanSection({
 
       {/* Cancel dialog */}
       <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>¿Cancelar suscripción?</DialogTitle>
-            <DialogDescription>
-              Perderás acceso a las funcionalidades premium al final del período
-              actual. Podés reactivar en cualquier momento.
+            <DialogDescription asChild>
+              <div className="space-y-3 pt-1">
+                <p>
+                  Al cancelar, pasarás al plan <strong>Free</strong> con estas
+                  limitaciones:
+                </p>
+                <ul className="list-inside list-disc space-y-1 text-sm">
+                  <li>Máximo 10 ventas por día</li>
+                  <li>1 solo profesional</li>
+                  <li>3 servicios</li>
+                  <li>Historial de solo 7 días</li>
+                  <li>Sin reportes ni liquidaciones</li>
+                </ul>
+                {currentPeriodEnd && (
+                  <p className="text-sm">
+                    Mantendrás el acceso completo hasta el{' '}
+                    <strong>
+                      {new Date(currentPeriodEnd).toLocaleDateString('es-AR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </strong>
+                    .
+                  </p>
+                )}
+              </div>
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 pt-2">
-            <Button
-              variant="outline"
-              onClick={() => setCancelOpen(false)}
-              className="flex-1"
-            >
-              Mantener
+            <Button onClick={() => setCancelOpen(false)} className="flex-1">
+              Mantener plan
             </Button>
             <Button
               variant="destructive"
@@ -344,7 +364,7 @@ export function PlanSection({
               loading={cancelling}
               className="flex-1"
             >
-              Cancelar
+              Confirmar cancelación
             </Button>
           </div>
         </DialogContent>

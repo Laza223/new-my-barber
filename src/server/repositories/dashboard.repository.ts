@@ -187,10 +187,13 @@ export const dashboardRepository = {
           tipAmount: sales.tipAmount,
           paymentMethod: sales.paymentMethod,
           notes: sales.notes,
+          originalPrice: sales.originalPrice,
+          discountPercent: sales.discountPercent,
           saleDate: sales.saleDate,
           saleTime: sales.saleTime,
           createdAt: sales.createdAt,
           deletedAt: sales.deletedAt,
+          idempotencyKey: sales.idempotencyKey,
           professionalName: professionals.name,
         })
         .from(sales)

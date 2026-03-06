@@ -23,6 +23,13 @@ export const saleRepository = {
     return created;
   },
 
+  /** Buscar venta por clave de idempotencia */
+  async findByIdempotencyKey(key: string) {
+    return db.query.sales.findFirst({
+      where: and(eq(sales.idempotencyKey, key), isNull(sales.deletedAt)),
+    });
+  },
+
   async findById(id: string) {
     return db.query.sales.findFirst({
       where: and(eq(sales.id, id), isNull(sales.deletedAt)),
@@ -73,10 +80,13 @@ export const saleRepository = {
           tipAmount: sales.tipAmount,
           paymentMethod: sales.paymentMethod,
           notes: sales.notes,
+          originalPrice: sales.originalPrice,
+          discountPercent: sales.discountPercent,
           saleDate: sales.saleDate,
           saleTime: sales.saleTime,
           createdAt: sales.createdAt,
           deletedAt: sales.deletedAt,
+          idempotencyKey: sales.idempotencyKey,
           professionalName: professionals.name,
         })
         .from(sales)
@@ -485,10 +495,13 @@ export const saleRepository = {
         tipAmount: sales.tipAmount,
         paymentMethod: sales.paymentMethod,
         notes: sales.notes,
+        originalPrice: sales.originalPrice,
+        discountPercent: sales.discountPercent,
         saleDate: sales.saleDate,
         saleTime: sales.saleTime,
         createdAt: sales.createdAt,
         deletedAt: sales.deletedAt,
+        idempotencyKey: sales.idempotencyKey,
         professionalName: professionals.name,
       })
       .from(sales)

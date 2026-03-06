@@ -14,6 +14,7 @@ import * as schema from '@/db/schema';
 import { neon } from '@neondatabase/serverless';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { and, eq, ne } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/neon-http';
 
 function createAuth() {
@@ -68,6 +69,29 @@ function createAuth() {
       cookieCache: {
         enabled: true,
         maxAge: 60 * 5, // 5 min cache
+      },
+    },
+
+    /* ── Sesión única: al crear sesión, borrar las anteriores ── */
+    databaseHooks: {
+      session: {
+        create: {
+          after: async (session) => {
+            // Delete all other sessions for this user (single-device enforcement)
+            try {
+              await db
+                .delete(schema.sessions)
+                .where(
+                  and(
+                    eq(schema.sessions.userId, session.userId),
+                    ne(schema.sessions.id, session.id),
+                  ),
+                );
+            } catch (err) {
+              console.error('[AUTH] Failed to revoke old sessions:', err);
+            }
+          },
+        },
       },
     },
 

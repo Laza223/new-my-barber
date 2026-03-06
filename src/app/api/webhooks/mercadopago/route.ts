@@ -2,10 +2,16 @@
  * Webhook de MercadoPago.
  * Procesa notificaciones de pago.
  */
+import { db } from '@/db';
+import { shops } from '@/db/schema/shops';
+import { users } from '@/db/schema/users';
 import { PLANS } from '@/lib/constants';
+import { planActivatedEmail } from '@/server/emails/templates';
 import { mercadopago } from '@/server/lib/mercadopago';
+import { sendEmail } from '@/server/lib/resend';
 import { shopRepository } from '@/server/repositories/shop.repository';
 import { subscriptionRepository } from '@/server/repositories/subscription.repository';
+import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -90,6 +96,26 @@ async function processPayment(paymentId: string) {
         console.log(
           `[WEBHOOK] ✅ Subscription activated: shop=${shopId} plan=${planId}`,
         );
+
+        // Send plan activated email (fire-and-forget)
+        try {
+          const [owner] = await db
+            .select({ name: users.name, email: users.email })
+            .from(shops)
+            .innerJoin(users, eq(users.id, shops.ownerId))
+            .where(eq(shops.id, shopId));
+          if (owner && planConfig) {
+            const email = planActivatedEmail(owner.name, planConfig.name);
+            sendEmail({
+              to: owner.email,
+              subject: email.subject,
+              html: email.html,
+            });
+          }
+        } catch (emailErr) {
+          console.error('[WEBHOOK] email error:', emailErr);
+        }
+
         break;
       }
 

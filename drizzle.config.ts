@@ -1,6 +1,8 @@
+import dotenv from 'dotenv';
 import { defineConfig } from 'drizzle-kit';
-import { loadEnvConfig } from 'next';
-loadEnvConfig(process.cwd());
+
+// Load .env.local (Next.js convention)
+dotenv.config({ path: '.env.local' });
 
 /**
  * Drizzle Kit config — conecta a Neon PostgreSQL.

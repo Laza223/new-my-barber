@@ -5,9 +5,11 @@
 
 import { PLANS } from '@/lib/constants';
 import type { ActionResponse } from '@/lib/types/common';
+import { cancellationEmail } from '@/server/emails/templates';
 import { AppError, NotFoundError } from '@/server/lib/errors';
 import { requireOwner } from '@/server/lib/get-session';
 import { mercadopago } from '@/server/lib/mercadopago';
+import { sendEmail } from '@/server/lib/resend';
 import { subscriptionRepository } from '@/server/repositories/subscription.repository';
 
 /**
@@ -97,7 +99,7 @@ export async function cancelSubscriptionAction(
   shopId: string,
 ): Promise<ActionResponse<void>> {
   try {
-    await requireOwner(shopId);
+    const session = await requireOwner(shopId);
     const sub = await subscriptionRepository.findByShopId(shopId);
     if (!sub) throw new NotFoundError('Suscripción');
 
@@ -108,6 +110,27 @@ export async function cancelSubscriptionAction(
     await subscriptionRepository.update(sub.id, {
       status: 'cancelled',
       cancelledAt: new Date(),
+    });
+
+    // Send cancellation email (fire-and-forget)
+    const planKey = sub.plan.toUpperCase() as keyof typeof PLANS;
+    const planConfig = PLANS[planKey];
+    const periodEnd = sub.currentPeriodEnd
+      ? sub.currentPeriodEnd.toLocaleDateString('es-AR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+      : 'fin de período';
+    const email = cancellationEmail(
+      session.user.name,
+      planConfig?.name ?? sub.plan,
+      periodEnd,
+    );
+    sendEmail({
+      to: session.user.email,
+      subject: email.subject,
+      html: email.html,
     });
 
     return { success: true, data: undefined };
