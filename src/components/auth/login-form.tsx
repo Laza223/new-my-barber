@@ -6,6 +6,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { trackEvent } from '@/lib/analytics';
 import { loginSchema, type LoginSchema } from '@/lib/validations/auth';
 import { signIn } from '@/server/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,6 +44,7 @@ export function LoginForm() {
       if (result.error) {
         setServerError('Email o contraseña incorrectos');
       } else {
+        trackEvent({ name: 'login', properties: { method: 'email' } });
         toast.success('¡Bienvenido!');
         // Redirect to dashboard (middleware will handle onboarding check)
         router.push('/inicio');

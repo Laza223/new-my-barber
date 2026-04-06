@@ -8,6 +8,7 @@
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 import { registerSchema, type RegisterSchema } from '@/lib/validations/auth';
 import { registerAction } from '@/server/actions/auth.actions';
@@ -87,6 +88,7 @@ export function RegisterForm() {
       const result = await registerAction(formData);
 
       if (result.success) {
+        trackEvent({ name: 'sign_up', properties: { method: 'email' } });
         setRegisteredEmail(result.data.email);
       } else {
         setServerError(result.error);

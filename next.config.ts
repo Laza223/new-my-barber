@@ -87,4 +87,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Sentry solo sube source maps si hay token configurado
+  silent: true,
+  disableLogger: true,
+  // Oculta source maps del cliente en producción
+  hideSourceMaps: true,
+  // Deshabilita el wizard interactivo
+  widenClientFileUpload: true,
+});

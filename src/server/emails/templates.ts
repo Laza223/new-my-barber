@@ -146,3 +146,58 @@ export function cancellationEmail(
     `),
   };
 }
+
+/** Verification email — sent after registration */
+export function verificationEmail(userName: string, verifyUrl: string) {
+  return {
+    subject: 'Verificá tu email — My Barber',
+    html: layout(`
+      <h2 style="margin:0 0 16px;font-size:22px;color:#18181b;">¡Hola ${userName}!</h2>
+      <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px;">
+        Gracias por registrarte en My Barber. Para activar tu cuenta,
+        hacé click en el botón:
+      </p>
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${verifyUrl}"
+           style="display:inline-block;padding:12px 32px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">
+          Verificar mi email ✓
+        </a>
+      </div>
+      <p style="color:#71717a;font-size:13px;line-height:1.6;margin:16px 0 0;">
+        Si no creaste una cuenta en My Barber, podés ignorar este email.
+      </p>
+      <p style="color:#71717a;font-size:12px;margin:8px 0 0;">
+        O copiá y pegá este link en tu navegador:<br>
+        <a href="${verifyUrl}" style="color:#71717a;word-break:break-all;">${verifyUrl}</a>
+      </p>
+    `),
+  };
+}
+
+/** Password reset email — sent when user requests a password reset */
+export function passwordResetEmail(userName: string, resetUrl: string) {
+  return {
+    subject: 'Restablecé tu contraseña — My Barber',
+    html: layout(`
+      <h2 style="margin:0 0 16px;font-size:22px;color:#18181b;">Hola ${userName},</h2>
+      <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px;">
+        Recibimos una solicitud para restablecer la contraseña de tu cuenta.
+        Hacé click en el botón para crear una nueva:
+      </p>
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${resetUrl}"
+           style="display:inline-block;padding:12px 32px;background:#f59e0b;color:#18181b;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">
+          Restablecer contraseña
+        </a>
+      </div>
+      <p style="color:#71717a;font-size:13px;line-height:1.6;margin:16px 0 0;">
+        Este link expira en 1 hora. Si no solicitaste un cambio de contraseña,
+        podés ignorar este email.
+      </p>
+      <p style="color:#71717a;font-size:12px;margin:8px 0 0;">
+        O copiá y pegá este link en tu navegador:<br>
+        <a href="${resetUrl}" style="color:#71717a;word-break:break-all;">${resetUrl}</a>
+      </p>
+    `),
+  };
+}

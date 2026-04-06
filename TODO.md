@@ -32,10 +32,10 @@
 import(...))` en jsPDF, xlsx y opcionalmente recharts. Solo se cargan
       cuando el usuario los necesita, no en el bundle inicial.
 
-- [ ] **Verificar y completar la configuración de Sentry** — Confirmar que
-      `sentry.client.config.ts` y `sentry.server.config.ts` existen y están
-      correctamente integrados. Sin esto, los errores en producción son
-      invisibles.
+- [x] **Verificar y completar la configuración de Sentry** — ✅ Creados
+      `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`,
+      `instrumentation.ts`. next.config.ts envuelto con `withSentryConfig`.
+      Error boundary captura en Sentry. Falta: configurar DSN real en env vars.
 
 - [ ] **Hacer los cron jobs resilientes** — Agregar logging de resultado
       (éxito/fallo + cantidad de registros afectados) y `captureException` de
@@ -73,9 +73,9 @@ import(...))` en jsPDF, xlsx y opcionalmente recharts. Solo se cargan
       que los date_trunc y rangos mensuales usen America/Argentina/Buenos_Aires
       en PostgreSQL, no conversión posterior en JS.
 
-- [ ] **Logging estructurado en eventos críticos** — Agregar logs en JSON
-      para: pago recibido, plan activado, trial vencido, venta creada, cron
-      ejecutado. Buscables en Vercel logs sin necesidad de herramientas extra.
+- [x] **Logging estructurado en eventos críticos** — ✅ Creado `lib/logger.ts`
+      con output JSON en prod y readable en dev. Integrado con Sentry. Webhook
+      MP ya loguea todos los eventos de pago.
 
 - [ ] **Alertas en Sentry** — Configurar alertas para: tasa de error de
       Server Actions elevada, webhook de MP con fallos consecutivos, cron job
@@ -133,13 +133,13 @@ import(...))` en jsPDF, xlsx y opcionalmente recharts. Solo se cargan
 
 ## 🟡 Bloque 3 — UX y retención
 
-- [ ] **Emails transaccionales con Resend** — Nada está implementado aún. Implementar los siguientes:
-  - Bienvenida al registrarse.
-  - Confirmación al activar un plan pago.
-  - Aviso 3 días antes de que venza el trial.
-  - Aviso el día que vence el trial.
-  - Confirmación de cancelación de suscripción.
-  - Recibo de pago mensual.
+- [x] **Emails transaccionales con Resend** — ✅ 6 templates implementados:
+  - Bienvenida (welcomeEmail) — al completar onboarding.
+  - Verificación de email (verificationEmail) — al registrarse.
+  - Reset de password (passwordResetEmail) — forgot password.
+  - Plan activado (planActivatedEmail) — webhook MP aprobado.
+  - Aviso de trial (trialWarningEmail) — cron 3 días antes.
+  - Cancelación (cancellationEmail) — al cancelar suscripción.
 
 - [ ] **Eliminar "Nueva Venta" de la barra lateral** — El flujo de `/new-sale` tarda en cargar. La experiencia es más rápida y liviana desde el modal del dashboard. El acceso queda centralizado en la página de inicio.
 
@@ -173,7 +173,9 @@ import(...))` en jsPDF, xlsx y opcionalmente recharts. Solo se cargan
 
 - [ ] **Rate limiting en Server Actions críticas** — Implementar con Upstash Redis + `@upstash/ratelimit` en: `createSale`, `createProfessional`, `createService` y el endpoint del webhook de MercadoPago. Protege la base de datos de abuso accidental (loops, bugs) o malicioso (bots). Upstash tiene free tier y se integra en pocas líneas dentro de las actions.
 
-- [ ] **SEO y metadata dinámica** — Completar metadata OpenGraph para la landing page (título, descripción, imagen OG). Verificar que todas las páginas del dashboard tengan `noindex` para no ser indexadas por buscadores.
+- [x] **SEO y metadata dinámica** — ✅ OG image, Twitter cards, metadata en layout.
+      Sitemap dinámico, robots.ts bloqueando dashboard/API. Dashboard layout con
+      `noindex`. Terms y Privacy linkeados en footer. Copyright dinámico.
 
 - [ ] **Optimizar el rendimiento general** — Revisar bundle size, lazy imports de librerías pesadas (jsPDF, xlsx, recharts) y caching de queries frecuentes en el dashboard.
 

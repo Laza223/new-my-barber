@@ -11,6 +11,8 @@ const PUBLIC_ROUTES = [
   '/forgot-password',
   '/reset-password',
   '/verify-email',
+  '/terms',
+  '/privacy',
 ];
 
 const PUBLIC_PREFIXES = [

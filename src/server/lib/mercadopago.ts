@@ -2,6 +2,7 @@
  * MercadoPago SDK client configuration.
  * Uses MP API v1 directly (no SDK needed — fetch-based).
  */
+import crypto from 'crypto';
 
 const MP_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN ?? '';
 const MP_WEBHOOK_SECRET = process.env.MERCADOPAGO_WEBHOOK_SECRET ?? '';
@@ -96,7 +97,15 @@ export const mercadopago = {
    * Verify HMAC signature from webhook.
    */
   verifySignature(body: string, signature: string): boolean {
-    if (!MP_WEBHOOK_SECRET) return true; // Skip in dev
+    if (!MP_WEBHOOK_SECRET) {
+      if (process.env.NODE_ENV === 'production') {
+        console.error(
+          '[MP] CRITICAL: MERCADOPAGO_WEBHOOK_SECRET not set in production — rejecting webhook',
+        );
+        return false;
+      }
+      return true; // Skip verification in dev only
+    }
     try {
       // MP sends: ts=xxx,v1=hash
       const parts = signature.split(',');
@@ -106,7 +115,6 @@ export const mercadopago = {
       if (!ts || !hash) return false;
 
       // We'll do a simple check — in production use crypto.timingSafeEqual
-      const crypto = require('crypto') as typeof import('crypto');
       const expected = crypto
         .createHmac('sha256', MP_WEBHOOK_SECRET)
         .update(`id:;request-id:;ts:${ts};`)

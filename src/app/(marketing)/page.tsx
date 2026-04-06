@@ -680,7 +680,7 @@ export default function LandingPage() {
               />
               <span className="text-sm font-bold">My Barber</span>
             </div>
-            <div className="flex gap-5 text-xs text-slate-400 sm:text-sm dark:text-slate-500">
+            <div className="flex flex-wrap gap-4 text-xs text-slate-400 sm:gap-5 sm:text-sm dark:text-slate-500">
               <a
                 href="#pricing"
                 className="transition-colors hover:text-slate-900 dark:hover:text-white"
@@ -699,9 +699,21 @@ export default function LandingPage() {
               >
                 Registrarse
               </Link>
+              <Link
+                href="/terms"
+                className="transition-colors hover:text-slate-900 dark:hover:text-white"
+              >
+                Términos
+              </Link>
+              <Link
+                href="/privacy"
+                className="transition-colors hover:text-slate-900 dark:hover:text-white"
+              >
+                Privacidad
+              </Link>
             </div>
             <p className="text-[10px] text-slate-400 dark:text-slate-600">
-              © 2025 My Barber · Hecho en Argentina 🇦🇷
+              © {new Date().getFullYear()} My Barber · Hecho en Argentina 🇦🇷
             </p>
           </div>
         </div>

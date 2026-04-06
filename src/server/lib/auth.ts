@@ -1,16 +1,9 @@
-/**
- * Better-Auth — Configuración del servidor.
- *
- * Punto central de autenticación. Usa Drizzle como adapter
- * y PostgreSQL (Neon) como base de datos.
- *
- * Providers: email + password.
- * Sesiones: cookie-based, httpOnly, secure en prod, 7 días.
- *
- * Build-safe: no crashea si DATABASE_URL no está definida
- * durante next build.
- */
 import * as schema from '@/db/schema';
+import {
+  passwordResetEmail,
+  verificationEmail,
+} from '@/server/emails/templates';
+import { sendEmail } from '@/server/lib/resend';
 import { neon } from '@neondatabase/serverless';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
@@ -51,13 +44,25 @@ function createAuth() {
       enabled: true,
       minPasswordLength: 8,
       autoSignIn: false,
+      sendResetPassword: async ({ user, url: resetUrl }) => {
+        const email = passwordResetEmail(user.name, resetUrl);
+        await sendEmail({
+          to: user.email,
+          subject: email.subject,
+          html: email.html,
+        });
+      },
     },
 
     /* ── Verificación de email ── */
     emailVerification: {
       sendVerificationEmail: async ({ user, url: verifyUrl }) => {
-        // TODO: Enviar con Resend cuando se configure
-        console.log(`[AUTH] Verificar email para ${user.email}: ${verifyUrl}`);
+        const email = verificationEmail(user.name, verifyUrl);
+        await sendEmail({
+          to: user.email,
+          subject: email.subject,
+          html: email.html,
+        });
       },
       sendOnSignUp: true,
     },
@@ -104,7 +109,6 @@ function createAuth() {
     /* ── Trusted origins ── */
     trustedOrigins: [
       process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
-      'http://192.168.1.14:3000', // Red local para testing desde celular
     ],
   });
 }
